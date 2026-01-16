@@ -1,0 +1,32 @@
+# Environment variables
+# .env
+
+# Vendor directory (uncomment if not deploying vendor)
+# vendor/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Log files
+*.log
+error_log
+access_log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
