@@ -11,20 +11,25 @@ $error = '';
 $success = '';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = sanitize($_POST['username']);
-    $email = sanitize($_POST['email']);
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    
-    if($password !== $confirm_password) {
-        $error = 'Passwords do not match!';
-    } elseif(!$auth->validatePasswordStrength($password)) {
-        $error = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.';
+    // Honeypot anti-bot
+    if (!empty($_POST['website_hp'])) {
+        $error = 'Bot detected.';
     } else {
-        if($auth->register($username, $email, $password, 'user', 0, 1)) {
-            $success = 'Registration successful! Your account is pending admin approval. You will receive an email once approved.';
+        $username = sanitize($_POST['username']);
+        $email = sanitize($_POST['email']);
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+        
+        if($password !== $confirm_password) {
+            $error = 'Passwords do not match!';
+        } elseif(!$auth->validatePasswordStrength($password)) {
+            $error = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.';
         } else {
-            $error = 'Registration failed. Username or email already exists.';
+            if($auth->register($username, $email, $password, 'user', 0, 1)) {
+                $success = 'Registration successful! Your account is pending admin approval. You will receive an email once approved.';
+            } else {
+                $error = 'Registration failed. Username or email already exists.';
+            }
         }
     }
 }
@@ -79,7 +84,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <h2>Daftar Akun Baru</h2>
                     <p>Isi data di bawah untuk membuat akun Anda</p>
                 </div>
-                <form method="POST" action="" id="registerForm">
+                <form method="POST" action="" id="registerForm" autocomplete="off">
+                                        <!-- Honeypot field, hidden from users -->
+                                        <div style="display:none;">
+                                            <label for="website_hp">Website</label>
+                                            <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
+                                        </div>
                     <div class="form-group">
                         <label for="username" class="form-label">Username</label>
                         <div class="input-wrapper">
