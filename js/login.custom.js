@@ -1,3 +1,14 @@
+// Tampilkan error login jika variabel global LOGIN_ERROR diset
+if (typeof LOGIN_ERROR !== "undefined" && LOGIN_ERROR) {
+  Swal.fire({
+    icon: "error",
+    title: "Login gagal",
+    text: LOGIN_ERROR,
+    confirmButtonText: "OK",
+    background: "#ffffff",
+    color: "#1a1a1a",
+  });
+}
 // Custom script khusus halaman login.php
 
 window.addEventListener("load", function () {

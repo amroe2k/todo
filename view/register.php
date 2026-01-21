@@ -48,98 +48,78 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="../css/register.css">
 </head>
 <body>
-    <div class="split-container">
-        <div class="left-side">
-            <div class="brand-content">
-                <div class="brand-logo">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <h1>Todo Talenta Digital</h1>
-                <p>Bergabung dan kelola tugas Anda bersama tim dengan mudah dan efisien.</p>
-                <div class="features">
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-user-friends"></i>
-                        </div>
-                        <small>Kolaborasi Tim</small>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <small>Keamanan Data</small>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <small>Produktivitas</small>
-                    </div>
-                </div>
-            </div>
+    <div class="register-page-center">
+        <div class="register-info">
+            <h1>Todo Talenta Digital</h1>
+            <p class="register-desc">Bergabung dan kelola tugas Anda bersama tim dengan mudah dan efisien.</p>
         </div>
-        <div class="right-side">
-            <div class="register-form-container">
-                <div class="form-header">
-                    <h2>Daftar Akun Baru</h2>
-                    <p>Isi data di bawah untuk membuat akun Anda</p>
+        <div class="register-form-outer">
+        <div class="register-card">
+            <div class="form-header">
+                <h2>Daftar Akun Baru</h2>
+                <p>Isi data di bawah untuk membuat akun Anda</p>
+            </div>
+            <form method="POST" action="" id="registerForm" autocomplete="off">
+                <!-- Honeypot field, hidden from users -->
+                <div style="display:none;">
+                    <label for="website_hp">Website</label>
+                    <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
                 </div>
-                <form method="POST" action="" id="registerForm" autocomplete="off">
-                                        <!-- Honeypot field, hidden from users -->
-                                        <div style="display:none;">
-                                            <label for="website_hp">Website</label>
-                                            <input type="text" id="website_hp" name="website_hp" tabindex="-1" autocomplete="off">
-                                        </div>
-                    <div class="form-group">
-                        <label for="username" class="form-label">Username</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-user"></i>
+                <div class="register-form-row">
+                    <div class="register-form-col">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" required placeholder="Masukkan username">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email" class="form-label">Email</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-envelope"></i>
+                    <div class="register-form-col">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" required placeholder="Masukkan email">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="password-input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" class="form-control" id="password" name="password" required placeholder="Masukkan password">
-                            <span class="password-toggle" data-target="password">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <div class="mt-2">
-                            <div id="passwordStrength" class="password-strength-meter"></div>
-                            <div id="passwordStrengthText" class="password-strength-text"></div>
+                </div>
+                <div class="register-form-row">
+                    <div class="register-form-col">
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-password-group">
+                                <input type="password" class="form-control" id="password" name="password" required placeholder="Masukkan password">
+                                <span class="password-toggle" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <div id="passwordStrength" class="password-strength-meter"></div>
+                                <div id="passwordStrengthText" class="password-strength-text"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="confirm_password" class="form-label">Konfirmasi Password</label>
-                        <div class="password-input-group">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required placeholder="Ulangi password">
-                            <span class="password-toggle" data-target="confirm_password">
-                                <i class="fas fa-eye"></i>
-                            </span>
+                    <div class="register-form-col">
+                        <div class="form-group">
+                            <label for="confirm_password" class="form-label">Konfirmasi Password</label>
+                            <div class="input-password-group">
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required placeholder="Ulangi password">
+                                <span class="password-toggle" data-target="confirm_password">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <div id="passwordMatch" class="mt-2"></div>
                         </div>
-                        <div id="passwordMatch" class="mt-2"></div>
                     </div>
-                    <button type="submit" class="btn btn-register-main">
-                        <i class="fas fa-user-plus me-2"></i> Daftar
-                    </button>
-                    <div class="divider">
-                        <span>atau</span>
-                    </div>
-                    <a href="../index.php?page=login" class="btn btn-login-link">
-                        <i class="fas fa-sign-in-alt me-2"></i> Kembali ke Login
-                    </a>
-                </form>
-            </div>
+                </div>
+                <button type="submit" class="btn btn-register">
+                    Daftar
+                </button>
+                <div class="divider">
+                    <span>atau</span>
+                </div>
+                <a href="../index.php?page=login" class="btn btn-login">
+                    Kembali ke Login
+                </a>
+            </form>
+        </div>
+        </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -159,10 +139,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         });
     </script>
     <?php endif; ?>
-    <div class="sticky-footer">
+    <footer class="footer-auth">
         <div class="container-fluid">
             <p class="mb-0">&copy; 2026 <strong>Alfa IT Solutions</strong>. All rights reserved. | Todo Talenta Digital</p>
         </div>
-    </div>
+    </footer>
 </body>
 </html>
