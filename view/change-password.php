@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/change-password.css">
 </head>
@@ -72,74 +72,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-5 col-md-7">
-                <div class="glass-card p-4 shadow-lg position-relative">
-                    <!-- Loading Overlay -->
-                    <div id="change-password-loading" class="loading-overlay" style="display:none;">
-                        <div class="loading-content">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <div class="mt-2">Menyimpan password baru...</div>
+                <div class="glass-card p-4 p-md-5 shadow-lg position-relative overflow-hidden">
+                    <!-- Premium Loading Overlay -->
+                    <div id="change-password-loading" class="loading-overlay">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <div class="mt-3 fw-bold text-dark">Updating Security Settings...</div>
                         </div>
                     </div>
-                    <div class="mb-4 text-center">
-                        <span class="d-inline-block mb-2 icon-key-glass">
-                            <i class="fa-solid fa-key"></i>
-                        </span>
-                        <h3 class="fw-bold title-glass">Ganti Password</h3>
-                        <p class="text-muted">Pastikan password baru Anda kuat dan unik.</p>
+
+                    <div class="mb-5 text-center">
+                        <div class="icon-key-glass animate__animated animate__bounceIn">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <h3 class="title-glass">Ganti Password</h3>
+                        <p class="text-muted small">Lindungi akun Anda dengan password yang kuat dan unik.</p>
                     </div>
-                    <?php if ($error): ?>
-                        <div class="alert alert-danger alert-custom mb-3 animate__animated animate__fadeInDown" role="alert">
-                            <i class="fa-solid fa-circle-exclamation me-2"></i> <?= htmlspecialchars($error) ?>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($success): ?>
-                        <div class="alert alert-success alert-custom mb-3 animate__animated animate__fadeInDown" role="alert">
-                            <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($success) ?>
-                        </div>
-                    <?php endif; ?>
+
                     <form method="POST" id="changePasswordForm" autocomplete="off">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label" for="current_password">
-                                <i class="fa-solid fa-lock me-1"></i> Password Saat Ini <span class="text-danger">*</span>
+                                <i class="bi bi-key me-2 text-primary"></i> Password Saat Ini
                             </label>
                             <div class="password-input-group">
-                                <input type="password" class="form-control" name="current_password" id="current_password" required placeholder="Masukkan password saat ini" autocomplete="current-password">
-                                <span class="password-toggle" data-target="current_password"><i class="fa-regular fa-eye"></i></span>
+                                <input type="password" class="form-control" name="current_password" id="current_password" required placeholder="••••••••" autocomplete="current-password">
+                                <span class="password-toggle" data-target="current_password"><i class="bi bi-eye"></i></span>
                             </div>
                         </div>
-                        <div class="mb-3">
+
+                        <div class="mb-4">
                             <label class="form-label" for="new_password">
-                                <i class="fa-solid fa-shield-halved me-1"></i> Password Baru <span class="text-danger">*</span>
+                                <i class="bi bi-shield-check me-2 text-success"></i> Password Baru
                             </label>
                             <div class="password-input-group">
-                                <input type="password" class="form-control" name="new_password" id="new_password" required placeholder="Masukkan password baru" autocomplete="new-password">
-                                <span class="password-toggle" data-target="new_password"><i class="fa-regular fa-eye"></i></span>
+                                <input type="password" class="form-control" name="new_password" id="new_password" required placeholder="••••••••" autocomplete="new-password">
+                                <span class="password-toggle" data-target="new_password"><i class="bi bi-eye"></i></span>
                             </div>
                             <div class="mt-2">
                                 <div id="passwordStrength" class="password-strength-meter"></div>
-                                <div id="passwordStrengthText" class="password-strength-text"></div>
+                                <div id="passwordStrengthText" class="password-strength-text small fw-bold"></div>
                             </div>
                         </div>
-                        <div class="mb-3">
+
+                        <div class="mb-4">
                             <label class="form-label" for="confirm_password">
-                                <i class="fa-solid fa-check-double me-1"></i> Konfirmasi Password Baru <span class="text-danger">*</span>
+                                <i class="bi bi-check2-all me-2 text-info"></i> Konfirmasi Password Baru
                             </label>
                             <div class="password-input-group">
-                                <input type="password" class="form-control" name="confirm_password" id="confirm_password" required placeholder="Ulangi password baru" autocomplete="new-password">
-                                <span class="password-toggle" data-target="confirm_password"><i class="fa-regular fa-eye"></i></span>
+                                <input type="password" class="form-control" name="confirm_password" id="confirm_password" required placeholder="••••••••" autocomplete="new-password">
+                                <span class="password-toggle" data-target="confirm_password"><i class="bi bi-eye"></i></span>
                             </div>
                             <div id="passwordMatch" class="mt-2"></div>
                         </div>
-                        <div class="d-flex justify-content-between mt-4 gap-2">
-                            <a href="?page=dashboard" class="btn btn-outline-secondary btn-glass px-4">
-                                <i class="fa-solid fa-xmark me-2"></i> Batal
-                            </a>
-                            <button type="submit" class="btn btn-glass px-4" id="savePasswordBtn">
-                                <span class="spinner-border spinner-border-sm me-2 d-none" id="savePasswordSpinner" role="status" aria-hidden="true"></span>
-                                <i class="fa-solid fa-floppy-disk me-2"></i> Simpan Password
-                            </button>
+
+                        <div class="row g-3 mt-4">
+                            <div class="col-6">
+                                <a href="?page=dashboard" class="btn btn-outline-secondary btn-glass w-100">
+                                    Batal
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-glass w-100" id="savePasswordBtn">
+                                    Simpan
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

@@ -28,7 +28,7 @@ const InfoToast = Swal.mixin({
   background: "#ffffff",
   color: "#1a1a1a",
   customClass: {
-    popup: "animated bounceInRight border-start border-info border-5",
+    popup: "border-start border-info border-5",
   },
 });
 
@@ -246,16 +246,7 @@ $(document).ready(function () {
             },
           });
 
-          // Add click handlers to new buttons
-          $("#noteContainer .sticky-note:first .edit-note").click(
-            editNoteHandler
-          );
-          $("#noteContainer .sticky-note:first .archive-note").click(
-            archiveNoteHandler
-          );
-          $("#noteContainer .sticky-note:first .delete-note").click(
-            deleteNoteHandler
-          );
+          // Delegated handlers in line 653-656 will handle events for this new note
         } else {
           Toast.fire({
             icon: "error",
@@ -273,7 +264,8 @@ $(document).ready(function () {
   });
 
   // Edit Note Handler
-  function editNoteHandler() {
+  function editNoteHandler(e) {
+    if (e) e.stopPropagation();
     var id = $(this).data("id");
     var title = $(this).data("title");
     var contentRaw = $(this).data("content");
@@ -397,7 +389,6 @@ $(document).ready(function () {
       cancelButtonText: "Cancel",
       reverseButtons: true,
       customClass: {
-        popup: "animated bounceIn",
         actions: "my-actions",
         confirmButton: "btn btn-warning",
         cancelButton: "btn btn-secondary",
@@ -413,9 +404,7 @@ $(document).ready(function () {
           willOpen: () => {
             Swal.showLoading();
           },
-          customClass: {
-            popup: "animated pulse",
-          },
+          customClass: {},
         });
 
         $.post(
@@ -431,9 +420,7 @@ $(document).ready(function () {
               Toast.fire({
                 icon: "success",
                 title: "Note archived successfully!",
-                customClass: {
-                  popup: "animated bounceInRight",
-                },
+                customClass: {},
               });
 
               // Remove note from UI with animation
@@ -449,7 +436,7 @@ $(document).ready(function () {
                   // If no notes left, show empty state
                   if ($("#noteContainer .sticky-note").length === 0) {
                     $("#noteContainer").html(`
-                                                <div class="no-notes animated fadeIn">
+                                                <div class="no-notes ">
                                                     <i class="fas fa-sticky-note"></i>
                                                     <h4>No notes yet</h4>
                                                     <p>Create your first sticky note by clicking the button above</p>
@@ -467,7 +454,6 @@ $(document).ready(function () {
                 icon: "error",
                 confirmButtonText: "OK",
                 customClass: {
-                  popup: "animated shake",
                   confirmButton: "btn btn-danger",
                 },
               });
@@ -481,7 +467,6 @@ $(document).ready(function () {
               icon: "error",
               confirmButtonText: "OK",
               customClass: {
-                popup: "animated shake",
                 confirmButton: "btn btn-danger",
               },
             });
@@ -491,7 +476,8 @@ $(document).ready(function () {
   }
 
   // Delete Note Handler
-  function deleteNoteHandler() {
+  function deleteNoteHandler(e) {
+    if (e) e.stopPropagation();
     var noteId = $(this).data("id");
     var noteElement = $(this).closest(".sticky-note");
     var noteTitle = noteElement.find(".note-title").text();
@@ -511,7 +497,6 @@ $(document).ready(function () {
       cancelButtonText: "Cancel",
       reverseButtons: true,
       customClass: {
-        popup: "animated bounceIn",
         actions: "my-actions",
         confirmButton: "btn btn-danger",
         cancelButton: "btn btn-secondary",
@@ -527,9 +512,7 @@ $(document).ready(function () {
           willOpen: () => {
             Swal.showLoading();
           },
-          customClass: {
-            popup: "animated pulse",
-          },
+          customClass: {},
         });
 
         $.post(
@@ -545,9 +528,7 @@ $(document).ready(function () {
               Toast.fire({
                 icon: "success",
                 title: "Note deleted successfully!",
-                customClass: {
-                  popup: "animated bounceInRight",
-                },
+                customClass: {},
               });
 
               // Remove note from UI with animation
@@ -563,12 +544,14 @@ $(document).ready(function () {
                   // If no notes left, show empty state
                   if ($("#noteContainer .sticky-note").length === 0) {
                     $("#noteContainer").html(`
-                                                <div class="no-notes animated fadeIn">
-                                                    <i class="fas fa-sticky-note"></i>
-                                                    <h4>No notes yet</h4>
-                                                    <p>Create your first sticky note by clicking the button above</p>
-                                                </div>
-                                            `);
+                      <div class="py-5 text-center w-100">
+                          <div class="mb-4">
+                              <i class="bi bi-sticky text-muted opacity-25" style="font-size: 4.5rem;"></i>
+                              <h4 class="fw-bold mt-3" style="color: #12305b;">Belum Ada Catatan</h4>
+                              <p class="text-muted">Klik tombol di atas untuk membuat catatan tempel pertama Anda.</p>
+                          </div>
+                      </div>
+                    `);
                   }
                 }
               );
@@ -584,7 +567,6 @@ $(document).ready(function () {
                 confirmButtonColor: "#0dcaf0",
                 confirmButtonText: "OK",
                 customClass: {
-                  popup: "animated shake",
                   icon: "swal2-icon-info-custom",
                   title: "text-info",
                   confirmButton: "btn btn-info",
@@ -612,7 +594,6 @@ $(document).ready(function () {
               showCancelButton: true,
               cancelButtonText: "Cancel",
               customClass: {
-                popup: "animated wobble",
                 icon: "swal2-icon-error-custom",
               },
             }).then((result) => {
@@ -678,7 +659,7 @@ $(document).ready(function () {
       data: { action: "get_archived" },
       dataType: "json",
       success: function (response) {
-        if (response.success && response.notes.length > 0) {
+        if (response.success && response.notes && response.notes.length > 0) {
           let html = '<div class="row g-3">';
           response.notes.forEach(function (note) {
             const htmlToText = (str) => {
@@ -730,13 +711,7 @@ $(document).ready(function () {
                                                                     note.title
                                                                   )
                                                                   .html()}"
-                                                                data-content="${$(
-                                                                  "<div>"
-                                                                )
-                                                                  .text(
-                                                                    note.content
-                                                                  )
-                                                                  .html()}"
+                                                                 data-content="${note.content.replace(/"/g, '&quot;')}"
                                                                 data-color="${
                                                                   note.color
                                                                 }"

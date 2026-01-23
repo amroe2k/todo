@@ -9,6 +9,21 @@ class Auth {
         $this->conn = $database->getConnection();
     }
     
+    // Membatalkan approval user (set is_approved = 0, approved_by = NULL, approved_at = NULL)
+    public function unapproveUser($user_id) {
+        try {
+            if (!$user_id || $user_id <= 0) {
+                return false;
+            }
+            $query = "UPDATE users SET is_approved = 0, approved_by = NULL, approved_at = NULL WHERE id = :user_id AND is_approved = 1";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':user_id', $user_id);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
     public function register($username, $email, $password, $role = 'user', $is_approved = 0, $is_aktif = 1) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         

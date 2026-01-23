@@ -278,7 +278,7 @@ if (!$stats || $stats['total'] === null) {
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/todos.css">
@@ -296,7 +296,10 @@ if (!$stats || $stats['total'] === null) {
                 </h2>
                 <p class="text-muted mb-0">Manage your tasks efficiently</p>
             </div>
-            <button class="btn" style="color: #12305b; background: linear-gradient(135deg, #eef4ff, #dbe7ff); border: 1px solid #c8d8ff;" data-bs-toggle="modal" data-bs-target="#addTodoModal">
+            <button class="btn btn-primary px-4 shadow-sm" style="border-radius: 10px; font-weight: 600; border: none; transition: all 0.2s ease;" 
+                    onmouseover="this.style.backgroundColor='#0b5ed7'; this.style.transform='translateY(-1px)';" 
+                    onmouseout="this.style.backgroundColor='#0d6efd'; this.style.transform='translateY(0)';"
+                    data-bs-toggle="modal" data-bs-target="#addTodoModal">
                 <i class="fas fa-plus-circle me-2"></i> Add New Todo
             </button>
         </div>
@@ -388,20 +391,42 @@ if (!$stats || $stats['total'] === null) {
         <!-- Todo List -->
         <div class="card card-soft-slate">
             <div class="card-body">
-                <?php if(empty($todos)): ?>
-                    <div class="empty-state">
-                        <i class="fas fa-check-circle"></i>
-                        <h4 class="mt-3">No todos found</h4>
-                        <p class="mb-4">Add your first todo item to get started!</p>
-                        <button id="emptyAddTodoBtn"
-                            class="btn rounded-circle d-inline-flex align-items-center justify-content-center p-0"
-                            style="width: 56px; height: 56px; box-shadow: 0 10px 24px rgba(18,48,91,0.25); line-height: 1; color: #12305b; background: linear-gradient(135deg, #eef4ff, #dbe7ff); border: 1px solid #c8d8ff;"
-                            data-bs-toggle="modal"
-                            data-bs-target="#addTodoModal"
-                            aria-label="Create your first todo">
-                            <i class="fas fa-plus" style="font-size: 22px;"></i>
-                        </button>
-                    </div>
+                <?php if(empty($todos)): 
+                    // Dynamic empty state message
+                    $empty_title = "Belum ada tugas";
+                    $empty_desc = "Mulai kelola produktivitas Anda dengan membuat tugas pertama.";
+                    $empty_icon = "bi-clipboard2-plus";
+
+                    switch($filter) {
+                        case 'pending': $empty_title = "Tidak ada tugas tertunda"; $empty_desc = "Semua tugas Anda sudah mulai dikerjakan atau selesai. Bagus!"; break;
+                        case 'in_progress': $empty_title = "Tidak ada tugas berjalan"; $empty_desc = "Pilih satu tugas dari daftar Pending untuk mulai dikerjakan."; break;
+                        case 'completed': $empty_title = "Belum ada tugas selesai"; $empty_desc = "Selesaikan tugas Anda dan lihat daftar ini terisi dengan pencapaian."; break;
+                        case 'high': $empty_title = "Tidak ada tugas prioritas"; $empty_desc = "Semua tugas penting Anda sudah ditangani atau belum ditandai."; break;
+                        case 'today': $empty_title = "Jadwal kosong hari ini"; $empty_desc = "Nikmati waktu luang Anda atau rencanakan tugas untuk besok."; break;
+                        case 'overdue': $empty_title = "Bebas tugas terlambat"; $empty_desc = "Hebat! Anda menyelesaikan semua tugas tepat waktu."; $empty_icon = "bi-check2-all"; break;
+                        case 'archived': $empty_title = "Arsip kosong"; $empty_desc = "Tugas yang sudah tidak aktif akan muncul di sini jika diarsipkan."; $empty_icon = "bi-archive"; break;
+                    }
+                ?>
+                        <div class="py-5 text-center">
+                            <div class="mb-4">
+                                <i class="bi <?php echo $empty_icon; ?> text-muted opacity-25" style="font-size: 4.5rem;"></i>
+                                <h4 class="fw-bold mt-3" style="color: #12305b;"><?php echo $empty_title; ?></h4>
+                                <p class="text-muted"><?php echo $empty_desc; ?></p>
+                            </div>
+                            
+                            <?php if($filter !== 'archived'): ?>
+                            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-sm" 
+                                    style="width: 60px; height: 60px; border: none; transition: all 0.2s ease-in-out;"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addTodoModal"
+                                    onmouseover="this.style.transform='scale(1.1)'; this.style.backgroundColor='#0b5ed7';"
+                                    onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#0d6efd';"
+                                    title="Tambah Tugas Baru"
+                                    aria-label="Tambah Tugas Baru">
+                                <i class="bi bi-plus-lg" style="font-size: 1.5rem; color: white;"></i>
+                            </button>
+                            <?php endif; ?>
+                        </div>
                 <?php else: ?>
                     <div class="todo-list-scroll-container">
                     <?php foreach($groupOrder as $weekLabel): ?>
@@ -590,7 +615,7 @@ if (!$stats || $stats['total'] === null) {
                     <h5 class="modal-title">
                         <i class="fas fa-plus-circle me-2"></i> Add New Todo
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="addTodoForm">
                     <div class="modal-body">
@@ -659,7 +684,7 @@ if (!$stats || $stats['total'] === null) {
                     <h5 class="modal-title">
                         <i class="fas fa-edit me-2"></i> Edit Todo
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form id="editTodoForm">
                     <input type="hidden" id="edit_id" name="id">

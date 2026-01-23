@@ -143,27 +143,38 @@ function copyToClipboard(text) {
 function togglePasswordVisibility(inputId, toggleIcon) {
   const input = document.getElementById(inputId);
   const icon = toggleIcon.querySelector("i");
+  if (!input || !icon) return;
 
-  if (input.type === "password") {
-    input.type = "text";
-    icon.classList.remove("fa-eye");
-    icon.classList.add("fa-eye-slash");
-    toggleIcon.setAttribute("title", "Hide password");
-  } else {
-    input.type = "password";
-    icon.classList.remove("fa-eye-slash");
-    icon.classList.add("fa-eye");
-    toggleIcon.setAttribute("title", "Show password");
+  const isPassword = input.type === "password";
+  input.type = isPassword ? "text" : "password";
+  
+  // Support FontAwesome
+  if (icon.classList.contains("fas") || icon.classList.contains("fa-regular") || icon.classList.contains("fa-solid")) {
+    icon.classList.toggle("fa-eye", !isPassword);
+    icon.classList.toggle("fa-eye-slash", isPassword);
   }
+  
+  // Support Bootstrap Icons
+  if (icon.classList.contains("bi")) {
+    icon.classList.toggle("bi-eye", !isPassword);
+    icon.classList.toggle("bi-eye-slash", isPassword);
+  }
+
+  toggleIcon.setAttribute("title", isPassword ? "Hide password" : "Show password");
 }
 
 // Initialize Password Toggles
 function initPasswordToggles() {
-  document.querySelectorAll(".password-toggle").forEach((toggle) => {
-    toggle.addEventListener("click", function () {
-      const inputId = this.getAttribute("data-target");
-      togglePasswordVisibility(inputId, this);
-    });
+  // Use event delegation on document so it works for all current and future toggles
+  document.addEventListener("click", function (e) {
+    const toggle = e.target.closest(".password-toggle");
+    if (toggle) {
+      e.preventDefault();
+      const inputId = toggle.getAttribute("data-target");
+      if (inputId) {
+        togglePasswordVisibility(inputId, toggle);
+      }
+    }
   });
 }
 

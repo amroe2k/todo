@@ -69,7 +69,7 @@ if ($conn && $current_user_id) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <!-- Tambahkan di head section -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/dashboard.css">
 </head>
@@ -84,8 +84,9 @@ if ($conn && $current_user_id) {
                 <h2>Welcome, <?php echo $user['username']; ?>!</h2>
                 <p class="lead">Selamat datang di aplikasi Sticky Notes dan Todo List.</p>
                 
+                <?php $card_col = isAdmin() ? 'col-md-4' : 'col-md-6'; ?>
                 <div class="row mt-4 align-items-stretch g-3" id="sticky-notes-card">
-                    <div class="col-md-4 d-flex">
+                    <div class="<?php echo $card_col; ?> d-flex">
                         <div class="card card-soft-blue mb-3 h-100 w-100 shadow-sm dashboard-main-card">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Sticky Notes</h5>
@@ -99,7 +100,7 @@ if ($conn && $current_user_id) {
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex">
+                    <div class="<?php echo $card_col; ?> d-flex">
                         <div class="card card-soft-green mb-3 h-100 w-100 shadow-sm dashboard-main-card">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">Todo List</h5>

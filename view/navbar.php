@@ -15,43 +15,90 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 <!-- Ensure Bootstrap Icons available for menu items -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<!-- Global Page Transition Loading -->
-<div id="pageTransitionLoading">
-    <div class="page-loading-content">
-        <div class="page-loading-spinner"></div>
-        <div class="page-loading-text">Loading...</div>
+<!-- Modern Page Transition Loader: Skeleton Alternative -->
+<div id="pageSkeletonOverlay">
+    <div class="container">
+        <div class="sk-title sk-pulse"></div>
+        <div id="skeletonStructure"></div>
     </div>
 </div>
+<div id="pageDimmer"></div>
 
 <script>
-// Global page transition animation
+// Global page transition animation (Alternative D: Skeleton Loading)
 document.addEventListener('DOMContentLoaded', function() {
-    const pageLoading = document.getElementById('pageTransitionLoading');
-    const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-item');
+    const skeletonOverlay = document.getElementById('pageSkeletonOverlay');
+    const skeletonStructure = document.getElementById('skeletonStructure');
+    const pageDimmer = document.getElementById('pageDimmer');
+    const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-item, .dashboard-main-card, .btn-primary[href], .stat-card');
     
+    function generateSkeleton(page) {
+        let html = '';
+        if (page.includes('dashboard')) {
+            html = `
+                <div class="sk-row mb-4">
+                    <div class="sk-col-3 sk-stat sk-pulse"></div>
+                    <div class="sk-col-3 sk-stat sk-pulse"></div>
+                    <div class="sk-col-3 sk-stat sk-pulse"></div>
+                    <div class="sk-col-3 sk-stat sk-pulse"></div>
+                </div>
+                <div class="sk-row">
+                    <div class="sk-col-6 sk-card sk-pulse"></div>
+                    <div class="sk-col-6 sk-card sk-pulse"></div>
+                </div>`;
+        } else if (page.includes('notes')) {
+            html = `
+                <div class="sk-row">
+                    <div class="sk-col-3 sk-card sk-pulse" style="height: 220px;"></div>
+                    <div class="sk-col-3 sk-card sk-pulse" style="height: 220px;"></div>
+                    <div class="sk-col-3 sk-card sk-pulse" style="height: 220px;"></div>
+                    <div class="sk-col-3 sk-card sk-pulse" style="height: 220px;"></div>
+                </div>`;
+        } else { // Todos or default
+            html = `
+                <div class="sk-row">
+                    <div class="sk-col-6 sk-stat sk-pulse" style="height: 80px;"></div>
+                    <div class="sk-col-6 sk-stat sk-pulse" style="height: 80px;"></div>
+                    <div class="sk-col-6 sk-stat sk-pulse" style="height: 80px;"></div>
+                    <div class="sk-col-6 sk-stat sk-pulse" style="height: 80px;"></div>
+                </div>`;
+        }
+        return html;
+    }
+
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Skip if it's a dropdown toggle or has no href
-            if (this.classList.contains('dropdown-toggle') || !this.href) {
+            const href = this.getAttribute('href') || (this.closest('a') ? this.closest('a').getAttribute('href') : null);
+            if (this.classList.contains('dropdown-toggle') || !href || href === '#' || href.startsWith('javascript:')) {
                 return;
             }
             
-            // Skip if it's logout (handled separately)
-            if (this.href.includes('page=logout')) {
+            if (href.includes('page=logout')) {
                 return;
             }
             
-            // Prevent default and show loading
             e.preventDefault();
-            const targetUrl = this.href;
+            const targetUrl = this.href || href;
             
-            if (pageLoading) {
-                pageLoading.classList.add('active');
-                
-                // Navigate after smooth animation
+            if (skeletonOverlay) {
+                // Morph current element feedback
+                if (this.classList.contains('nav-link')) {
+                    const icon = this.querySelector('i');
+                    if(icon) {
+                        icon.className = 'bi bi-arrow-repeat spin-animate me-2';
+                    }
+                }
+
+                // Show Skeleton
+                const pageType = targetUrl.toLowerCase();
+                skeletonStructure.innerHTML = generateSkeleton(pageType);
+                skeletonOverlay.classList.add('active');
+                if(pageDimmer) pageDimmer.classList.add('active');
+
+                // Navigate
                 setTimeout(function() {
                     window.location.href = targetUrl;
-                }, 800);
+                }, 600);
             } else {
                 window.location.href = targetUrl;
             }
@@ -63,59 +110,66 @@ document.addEventListener('DOMContentLoaded', function() {
 <nav class="navbar navbar-expand-lg navbar-soft">
     <div class="container">
         <a class="navbar-brand" href="../index.php?page=dashboard">
-            <i class="bi bi-check2-square me-2"></i>Todo Talenta Digital
+            <i class="bi bi-intersect me-2"></i>Todo Talenta
         </a>
+        
         <?php if (isset($_SESSION['viewing_as_user']) && $_SESSION['viewing_as_user']): ?>
-            <span class="viewing-as-badge"><i class="bi bi-eye"></i> Viewing as <?php echo htmlspecialchars($user['username']); ?></span>
+            <span class="viewing-as-badge d-none d-md-inline-block">
+                <i class="bi bi-eye"></i> Viewing as <?php echo htmlspecialchars($user['username']); ?>
+            </span>
         <?php endif; ?>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'dashboard' ? 'active' : ''; ?>" 
                         href="../index.php?page=dashboard">
-                        <i class="bi bi-house-door"></i> Dashboard
+                        <i class="bi bi-grid-1x2"></i> Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'notes' ? 'active' : ''; ?>" 
                         href="../index.php?page=notes">
-                        <i class="bi bi-sticky"></i> Sticky Notes
+                        <i class="bi bi-journal-text"></i> Notes
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'todos' ? 'active' : ''; ?>" 
                         href="../index.php?page=todos">
-                        <i class="bi bi-list-check"></i> Todo List
+                        <i class="bi bi-check-circle"></i> Tasks
                     </a>
                 </li>
                 <?php if($user['role'] === 'admin'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo $current_page == 'users' ? 'active' : ''; ?>" 
                         href="../index.php?page=users">
-                        <i class="bi bi-people"></i> Users
+                        <i class="bi bi-shield-lock"></i> Users
                     </a>
                 </li>
                 <?php endif; ?>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> <?php echo htmlspecialchars(ucwords($user['username'])); ?>
+                
+                <li class="nav-item dropdown ms-lg-3 mt-2 mt-lg-0 w-100 w-lg-auto">
+                    <a class="nav-link dropdown-toggle bg-light rounded-pill px-3" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-5 text-primary"></i>
+                        <span class="fw-bold"><?php echo htmlspecialchars(ucwords($user['username'])); ?></span>
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end border-0">
                         <?php if (isset($_SESSION['viewing_as_user']) && $_SESSION['viewing_as_user']): ?>
                         <li><a class="dropdown-item" href="../index.php?page=users&return_as_admin=1">
-                            <i class="bi bi-arrow-counterclockwise"></i> Back to Admin
+                            <i class="bi bi-arrow-counterclockwise text-warning"></i> Back to Admin
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="../index.php?page=change-password">
-                            <i class="bi bi-key"></i> Change Password
+                            <i class="bi bi-key text-info"></i> Security Settings
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="../index.php?page=logout">
-                            <i class="bi bi-box-arrow-right"></i> Logout
+                        <li><a class="dropdown-item text-danger" href="../index.php?page=logout">
+                            <i class="bi bi-box-arrow-right"></i> Sign Out
                         </a></li>
                     </ul>
                 </li>

@@ -22,14 +22,14 @@ if (empty($page)) {
 
 // Define allowed pages and their corresponding view files
 $allowed_pages = [
-    'login' => 'view/login.php',
-    'register' => 'view/register.php',
+    'login' => 'view/auth.php',
+    'register' => 'view/auth.php',
     'dashboard' => 'view/dashboard.php',
     'users' => 'view/users.php',
     'notes' => 'view/notes.php',
     'todos' => 'view/todos.php',
     'change-password' => 'view/change-password.php',
-    'logout' => 'logout.php'
+    'logout' => 'view/logout.php'
 ];
 
 // Check if requested page exists

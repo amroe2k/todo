@@ -27,7 +27,7 @@ const InfoToast = Swal.mixin({
   background: "#d1ecf1",
   color: "#0c5460",
   customClass: {
-    popup: "animated bounceInRight border-start border-info border-5",
+    popup: "border-start border-info border-5",
   },
 });
 
@@ -174,18 +174,17 @@ $(document).ready(function () {
   $(document).on("change", ".status-checkbox", function () {
     const checkbox = $(this);
     const id = checkbox.data("id");
-    const status = this.checked ? "completed" : "pending";
+    const isCompleted = this.checked;
+    const status = isCompleted ? "completed" : "pending";
     const todoItem = checkbox.closest(".todo-item");
-
-    const originalHTML = todoItem.html();
-    todoItem.html(`
-            <div class="card-body text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Updating...</span>
-                </div>
-                <p class="mt-2 mb-0">Updating status...</p>
-            </div>
-        `);
+    const statusBadge = todoItem.find(".status-badge");
+    
+    // Save original state
+    const originalBadgeContent = statusBadge.html();
+    
+    // Disable interaction during update
+    checkbox.prop("disabled", true);
+    statusBadge.html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
 
     $.ajax({
       url: window.location.href,
@@ -194,30 +193,40 @@ $(document).ready(function () {
       dataType: "json",
     })
       .done(function (response) {
+        checkbox.prop("disabled", false);
         if (response && response.success) {
           Toast.fire({
             icon: "success",
-            title: "Status updated successfully!",
+            title: isCompleted ? "Tugas selesai!" : "Tugas dikembalikan ke pending",
           });
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
+          
+          // Update UI in-place
+          todoItem.removeClass("pending completed in_progress").addClass(status);
+          
+          if (isCompleted) {
+            statusBadge.removeClass("bg-warning bg-info").addClass("bg-success")
+                       .html('<i class="fas fa-check-circle me-1"></i> Completed');
+          } else {
+            statusBadge.removeClass("bg-success bg-info").addClass("bg-warning")
+                       .html('<i class="fas fa-clock me-1"></i> Pending');
+          }
         } else {
-          todoItem.html(originalHTML);
+          statusBadge.html(originalBadgeContent);
+          checkbox.prop("checked", !isCompleted);
           Toast.fire({
             icon: "error",
             title: (response && response.message) || "Failed to update status",
           });
-          checkbox.prop("checked", !checkbox.prop("checked"));
         }
       })
       .fail(function () {
-        todoItem.html(originalHTML);
+        checkbox.prop("disabled", false);
+        statusBadge.html(originalBadgeContent);
+        checkbox.prop("checked", !isCompleted);
         Toast.fire({
           icon: "error",
-          title: "Network error! Please try again.",
+          title: "Network error!",
         });
-        checkbox.prop("checked", !checkbox.prop("checked"));
       });
   });
 
@@ -285,7 +294,6 @@ $(document).ready(function () {
       cancelButtonText: "Cancel",
       reverseButtons: true,
       customClass: {
-        popup: "animated bounceIn",
         actions: "my-actions",
         confirmButton: "btn btn-danger",
         cancelButton: "btn btn-secondary",
@@ -301,9 +309,7 @@ $(document).ready(function () {
           willOpen: () => {
             Swal.showLoading();
           },
-          customClass: {
-            popup: "animated pulse",
-          },
+          customClass: {},
         });
 
         $.ajax({
@@ -318,35 +324,38 @@ $(document).ready(function () {
               Toast.fire({
                 icon: "success",
                 title: "Todo deleted successfully!",
-                customClass: {
-                  popup: "animated bounceInRight",
-                },
+                customClass: {},
               });
 
-              todoItem.animate(
-                {
-                  opacity: 0,
-                  marginTop: -todoItem.outerHeight(),
-                  marginBottom: 0,
-                },
-                300,
-                function () {
-                  $(this).remove();
+              todoItem.fadeOut(400, function () {
+                $(this).remove();
 
-                  if ($(".todo-item").length === 0) {
-                    $(".card-body").html(`
-                                    <div class="empty-state animated fadeIn">
-                                        <i class="fas fa-check-circle"></i>
-                                        <h4 class="mt-3">No todos found</h4>
-                                        <p class="mb-4">Add your first todo item to get started!</p>
-                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTodoModal">
-                                            <i class="fas fa-plus-circle me-2"></i> Create Your First Todo
-                                        </button>
-                                    </div>
-                                `);
+                if ($(".todo-item").length === 0) {
+                  const currentFilter = new URLSearchParams(window.location.search).get('filter') || 'all';
+                  if (currentFilter !== 'all') {
+                      window.location.reload();
+                  } else {
+                      $(".card-body").first().html(`
+                        <div class="py-5 text-center">
+                            <div class="mb-4">
+                                <i class="bi bi-clipboard-x text-muted opacity-25" style="font-size: 4.5rem;"></i>
+                                <h4 class="fw-bold mt-3" style="color: #12305b;">Tugas Masih Kosong</h4>
+                                <p class="text-muted">Klik tombol di bawah untuk mulai mencatat tugas Anda hari ini.</p>
+                            </div>
+                            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-sm" 
+                                    style="width: 60px; height: 60px; border: none; transition: all 0.2s ease-in-out;"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addTodoModal"
+                                    onmouseover="this.style.transform='scale(1.1)';"
+                                    onmouseout="this.style.transform='scale(1)';"
+                                    title="Tambah Tugas Baru">
+                                <i class="bi bi-plus-lg" style="font-size: 1.5rem; color: white;"></i>
+                            </button>
+                        </div>
+                      `);
                   }
                 }
-              );
+              });
             } else {
               Swal.fire({
                 title: "Failed to Delete Todo",
@@ -358,7 +367,6 @@ $(document).ready(function () {
                 confirmButtonColor: "#0dcaf0",
                 confirmButtonText: "OK",
                 customClass: {
-                  popup: "animated shake",
                   icon: "swal2-icon-info-custom",
                   title: "text-info",
                   confirmButton: "btn btn-info",
@@ -384,7 +392,6 @@ $(document).ready(function () {
               showCancelButton: true,
               cancelButtonText: "Cancel",
               customClass: {
-                popup: "animated wobble",
                 icon: "swal2-icon-error-custom",
               },
             }).then((result) => {
@@ -402,7 +409,7 @@ $(document).ready(function () {
                   color: "#856404",
                   customClass: {
                     popup:
-                      "animated bounceInRight border-start border-warning border-5",
+                      "border-start border-warning border-5",
                   },
                 });
                 ErrorInfoToast.fire({

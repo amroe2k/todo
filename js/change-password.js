@@ -1,50 +1,36 @@
 // Change Password Page JavaScript
 
 $(function () {
-  // Ensure password toggles work even if utils.js is cached or not yet loaded
-  function bindPasswordToggles() {
-    $(".password-toggle")
-      .off("click")
-      .on("click", function () {
-        const targetId = $(this).data("target");
-        const input = document.getElementById(targetId);
-        const icon = $(this).find("i");
-        if (!input) return;
-        const isPassword = input.type === "password";
-        input.type = isPassword ? "text" : "password";
-        icon.toggleClass("fa-eye fa-eye-slash");
-        $(this).attr("title", isPassword ? "Hide password" : "Show password");
-      });
-  }
-
-  // Bind toggles (fallback-friendly) and also call shared helper when present
-  bindPasswordToggles();
-  if (typeof initPasswordToggles === "function") {
-    initPasswordToggles();
-  }
+  // Cleanup: Shared logic from utils.js is now used for toggles
 
   function checkPasswordStrength(password) {
     const len = password.length;
     const isValid = len >= 6;
-    let level = "weak";
-    let color = "#dc3545";
-    let width = Math.min(len * 12, 100) + "%";
+    let color = "#e2e8f0"; // default
+    let width = "0%";
 
-    if (len >= 10) {
-      level = "strong";
-      color = "#198754";
-    } else if (len >= 6) {
-      level = "medium";
-      color = "#ffc107";
+    if (len > 0) {
+        width = Math.min(len * 10, 100) + "%";
+        if (len < 6) color = "#ef4444"; // red-500
+        else if (len < 10) color = "#f59e0b"; // amber-500
+        else color = "#10b981"; // emerald-500
     }
 
     $("#passwordStrength")
-      .attr("class", "password-strength-meter")
       .css("width", width)
       .css("background-color", color);
+      
+    let strengthLabel = "";
+    if (len > 0) {
+        if (len < 6) strengthLabel = "Weak";
+        else if (len < 10) strengthLabel = "Good";
+        else strengthLabel = "Strong";
+    }
+    
     $("#passwordStrengthText")
-      .attr("class", "password-strength-text")
-      .text(len ? `${len} karakter` : "");
+      .css("color", color)
+      .text(strengthLabel);
+      
     return isValid;
   }
 
@@ -57,12 +43,12 @@ $(function () {
     }
     if (p === c) {
       $("#passwordMatch").html(
-        '<span class="text-success"><i class="fas fa-check-circle me-1"></i>Passwords match</span>'
+        '<span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Passwords match</span>'
       );
       return true;
     }
     $("#passwordMatch").html(
-      '<span class="text-danger"><i class="fas fa-times-circle me-1"></i>Passwords do not match</span>'
+      '<span class="text-danger small fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Passwords do not match</span>'
     );
     return false;
   }
@@ -73,10 +59,20 @@ $(function () {
   });
   $("#confirm_password").on("input", checkPasswordMatch);
 
-  // Spinner loading saat tombol Batal ditekan (konsisten dengan dashboard)
-  $(document).on("click", "a.btn.btn-outline-secondary", function (e) {
-    if (this.href && this.href !== "#") {
-      var pageLoading = document.getElementById("pageTransitionLoading");
+  // High-end submission transition
+  $("#changePasswordForm").on("submit", function() {
+    const overlay = document.getElementById("change-password-loading");
+    if (overlay) {
+        overlay.classList.add("active");
+    }
+    $("#savePasswordBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+  });
+
+  // Page Transition for Batal link
+  $(document).on("click", "a.btn-outline-secondary", function (e) {
+    const href = $(this).attr("href");
+    if (href && href !== "#") {
+      const pageLoading = document.getElementById("pageSkeletonOverlay");
       if (pageLoading) {
         pageLoading.classList.add("active");
       }

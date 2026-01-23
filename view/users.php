@@ -129,6 +129,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             echo json_encode(['success' => $success, 'message' => $success ? 'Switched to user view' : 'Failed to switch user view']);
             exit();
 
+        case 'unapprove':
+            $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+            $success = $auth->unapproveUser($id);
+            echo json_encode(['success' => $success, 'message' => $success ? 'Approval dibatalkan' : 'Gagal membatalkan approval']);
+            exit();
+
         case 'import_xlsx':
             if(!isset($_FILES['xlsx_file']) || $_FILES['xlsx_file']['error'] !== UPLOAD_ERR_OK) {
                 echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error']);
@@ -430,7 +436,7 @@ if(isset($_GET['pending_page'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/users.css">
 </head>
@@ -576,13 +582,11 @@ if(isset($_GET['pending_page'])) {
                 </div>
                 <div class="card" id="users-table-card">
                     <div class="card-body table-responsive position-relative">
-                        <!-- Loading Overlay -->
-                        <div id="users-loading" class="users-loading-overlay" style="display: none;">
+                        <!-- Premium Loading Overlay -->
+                        <div id="users-loading" class="users-loading-overlay">
                             <div class="users-loading-content">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <div class="mt-2">Loading users data...</div>
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <div class="fw-bold text-dark">Updating User Data...</div>
                             </div>
                         </div>
                         <div id="users-table-wrapper">
@@ -700,77 +704,98 @@ if(isset($_GET['pending_page'])) {
             <div class="tab-pane fade <?php echo $activeTab === 'pending' ? 'show active' : ''; ?>" id="pending" role="tabpanel">
                 <?php if(empty($pending_users_paged)): ?>
                     <div class="empty-state">
-                        <i class="fas fa-check-circle"></i>
-                        <p class="mt-3">No pending registrations</p>
+                        <i class="fas fa-user-clock text-warning"></i>
+                        <h4 class="mt-3">No pending registrations</h4>
                         <p class="text-muted">All users have been reviewed!</p>
                     </div>
                 <?php else: ?>
-                    <div style="position: relative;">
-                        <div id="pending-loading" class="users-loading-overlay" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                    <div style="position: relative; min-height: 200px;">
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="layout-switcher" data-target="pending-cards-wrapper">
+                                <button type="button" class="btn-layout active" data-layout="grid" title="Grid View">
+                                    <i class="bi bi-grid-fill"></i> Grid
+                                </button>
+                                <button type="button" class="btn-layout" data-layout="list" title="List View">
+                                    <i class="bi bi-list-ul"></i> Row
+                                </button>
                             </div>
                         </div>
-                    <div id="pending-cards-wrapper" class="row">
-                        <?php foreach($pending_users_paged as $user): ?>
-                            <div class="col-md-4 mb-3">
-                                <div class="approval-card card" style="border-left: 4px solid #ffc107;">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start gap-3 mb-3">
-                                            <div class="flex-grow-1">
-                                                <h5 class="mb-1">
-                                                    <i class="fas fa-user text-primary me-2"></i><?php echo htmlspecialchars($user['username']); ?>
-                                                </h5>
-                                                <div class="text-muted small mb-2">
-                                                    <i class="fas fa-envelope me-1"></i> <?php echo htmlspecialchars($user['email']); ?>
+                        <!-- Premium Loading Overlay -->
+                        <div id="pending-loading" class="users-loading-overlay">
+                            <div class="users-loading-content">
+                                <div class="spinner-border text-warning" role="status"></div>
+                                <div class="fw-bold text-dark">Checking Pending Requests...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="pending-cards-wrapper" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <?php foreach($pending_users_paged as $user): ?>
+                                <div class="col">
+                                    <div class="approval-card card-pending">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="avatar-circle bg-soft-yellow text-warning me-3">
+                                                    <i class="fas fa-user-clock"></i>
                                                 </div>
-                                                <div class="text-muted small">
-                                                    <i class="fas fa-calendar me-1"></i> Registered: <?php echo date('d M Y, H:i', strtotime($user['created_at'])); ?>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mb-0 text-truncate fw-bold"><?php echo htmlspecialchars($user['username']); ?></h5>
+                                                    <span class="badge bg-warning text-dark small-badge">Pending</span>
                                                 </div>
                                             </div>
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-sm btn-soft-green approve-btn flex-fill" data-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
-                                                <i class="fas fa-check me-1"></i> Approve
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-soft-slate reject-btn flex-fill" data-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
-                                                <i class="fas fa-times me-1"></i> Reject
-                                            </button>
+                                            
+                                            <div class="user-info-list mb-4">
+                                                <div class="info-item mb-2">
+                                                    <i class="bi bi-envelope text-muted me-2"></i>
+                                                    <span class="text-muted small text-truncate d-inline-block w-100"><?php echo htmlspecialchars($user['email']); ?></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <i class="bi bi-calendar-plus text-muted me-2"></i>
+                                                    <span class="text-muted small">Registered: <?php echo date('d M Y, H:i', strtotime($user['created_at'])); ?></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2 pt-3 border-top">
+                                                <button type="button" class="btn btn-sm btn-soft-green approve-btn flex-fill" data-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                                    <i class="fas fa-check me-1"></i> Approve
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-soft-slate text-danger reject-btn flex-fill" data-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                                    <i class="fas fa-times me-1"></i> Reject
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php if($pending_total_pages > 1): ?>
-                        <nav aria-label="Pending users pagination" class="mt-3" id="pending-pagination">
-                            <ul class="pagination justify-content-center mb-0">
-                                <li class="page-item <?php echo $pending_page <= 1 ? 'disabled' : ''; ?>">
-                                    <a class="page-link" href="?page=users&pending_page=<?php echo max(1, $pending_page - 1); ?>">Prev</a>
-                                </li>
-                                <?php 
-                                $start = max(1, $pending_page - 2);
-                                $end = min($pending_total_pages, $pending_page + 2);
-                                if($start > 1): ?>
-                                    <li class="page-item"><a class="page-link" href="?page=users&pending_page=1">1</a></li>
-                                    <?php if($start > 2): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
-                                <?php endif; ?>
-                                <?php for($p = $start; $p <= $end; $p++): ?>
-                                    <li class="page-item <?php echo $p == $pending_page ? 'active' : ''; ?>">
-                                        <a class="page-link" href="?page=users&pending_page=<?php echo $p; ?>"><?php echo $p; ?></a>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <?php if($pending_total_pages > 1): ?>
+                            <nav aria-label="Pending users pagination" class="mt-4" id="pending-pagination">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item <?php echo $pending_page <= 1 ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=users&pending_page=<?php echo max(1, $pending_page - 1); ?>">Prev</a>
                                     </li>
-                                <?php endfor; ?>
-                                <?php if($end < $pending_total_pages): ?>
-                                    <?php if($end < $pending_total_pages - 1): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
-                                    <li class="page-item"><a class="page-link" href="?page=users&pending_page=<?php echo $pending_total_pages; ?>"><?php echo $pending_total_pages; ?></a></li>
-                                <?php endif; ?>
-                                <li class="page-item <?php echo $pending_page >= $pending_total_pages ? 'disabled' : ''; ?>">
-                                    <a class="page-link" href="?page=users&pending_page=<?php echo min($pending_total_pages, $pending_page + 1); ?>">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    <?php endif; ?>
+                                    <?php 
+                                    $start = max(1, $pending_page - 2);
+                                    $end = min($pending_total_pages, $pending_page + 2);
+                                    if($start > 1): ?>
+                                        <li class="page-item"><a class="page-link" href="?page=users&pending_page=1">1</a></li>
+                                        <?php if($start > 2): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php for($p = $start; $p <= $end; $p++): ?>
+                                        <li class="page-item <?php echo $p == $pending_page ? 'active' : ''; ?>">
+                                            <a class="page-link" href="?page=users&pending_page=<?php echo $p; ?>"><?php echo $p; ?></a>
+                                        </li>
+                                    <?php endfor; ?>
+                                    <?php if($end < $pending_total_pages): ?>
+                                        <?php if($end < $pending_total_pages - 1): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
+                                        <li class="page-item"><a class="page-link" href="?page=users&pending_page=<?php echo $pending_total_pages; ?>"><?php echo $pending_total_pages; ?></a></li>
+                                    <?php endif; ?>
+                                    <li class="page-item <?php echo $pending_page >= $pending_total_pages ? 'disabled' : ''; ?>">
+                                        <a class="page-link" href="?page=users&pending_page=<?php echo min($pending_total_pages, $pending_page + 1); ?>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -779,44 +804,86 @@ if(isset($_GET['pending_page'])) {
             <div class="tab-pane fade <?php echo $activeTab === 'approved' ? 'show active' : ''; ?>" id="approved" role="tabpanel">
                 <?php if(empty($approved_users)): ?>
                     <div class="empty-state">
-                        <i class="fas fa-user-clock"></i>
+                        <i class="fas fa-user-check"></i>
                         <p class="mt-3">No approved users yet</p>
                         <p class="text-muted">Start approving pending registrations</p>
                     </div>
                 <?php else: ?>
-                    <div style="position: relative;">
-                        <div id="approved-loading" class="users-loading-overlay" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                    <div style="position: relative; min-height: 200px;">
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="layout-switcher" data-target="approved-cards-wrapper">
+                                <button type="button" class="btn-layout active" data-layout="grid" title="Grid View">
+                                    <i class="bi bi-grid-fill"></i> Grid
+                                </button>
+                                <button type="button" class="btn-layout" data-layout="list" title="List View">
+                                    <i class="bi bi-list-ul"></i> Row
+                                </button>
                             </div>
                         </div>
-                    <div id="approved-cards-wrapper" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-                        <?php foreach($approved_users_paged as $user): ?>
-                            <div class="col">
-                                <div class="approval-card card" style="border-left: 4px solid #28a745;">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start gap-3">
-                                            <div class="flex-grow-1">
-                                                <h5 class="mb-1">
-                                                    <i class="fas fa-user text-success me-2"></i><?php echo htmlspecialchars($user['username']); ?>
-                                                </h5>
-                                                <div class="text-muted small mb-2">
-                                                    <i class="fas fa-envelope me-1"></i> <?php echo htmlspecialchars($user['email']); ?>
+                        <!-- Premium Loading Overlay -->
+                        <div id="approved-loading" class="users-loading-overlay">
+                            <div class="users-loading-content">
+                                <div class="spinner-border text-success" role="status"></div>
+                                <div class="fw-bold text-dark">Refreshing Approved Users...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="approved-cards-wrapper" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <?php foreach($approved_users_paged as $user): ?>
+                                <div class="col">
+                                    <div class="approval-card card-approved">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="avatar-circle bg-soft-green text-success me-3">
+                                                    <i class="fas fa-user-check"></i>
                                                 </div>
-                                                <div class="text-muted small">
-                                                    <?php if(!empty($user['approved_at'])): ?>
-                                                        <i class="fas fa-check-circle text-success me-1"></i> Approved: <?php echo date('d M Y, H:i', strtotime($user['approved_at'])); ?>
-                                                    <?php else: ?>
-                                                        <i class="fas fa-check-circle text-success me-1"></i> Approved: -
-                                                    <?php endif; ?>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mb-0 text-truncate fw-bold"><?php echo htmlspecialchars($user['username']); ?></h5>
+                                                    <span class="badge <?php echo $user['role'] === 'admin' ? 'bg-danger' : 'bg-info'; ?> small-badge">
+                                                        <?php echo ucfirst($user['role']); ?>
+                                                    </span>
+                                                </div>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                        <li><a class="dropdown-item edit-user" href="javascript:void(0)" data-id="<?php echo (int)$user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>" data-email="<?php echo htmlspecialchars($user['email']); ?>" data-role="<?php echo htmlspecialchars($user['role']); ?>" data-status="<?php echo (int)$user['is_aktif']; ?>"><i class="bi bi-pencil me-2"></i>Edit User</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item text-danger unapprove-btn" href="javascript:void(0)" data-id="<?php echo $user['id']; ?>" data-username="<?php echo htmlspecialchars($user['username']); ?>"><i class="bi bi-x-circle me-2"></i>Batal Approved</a></li>
+                                                    </ul>
                                                 </div>
                                             </div>
-                                            <span class="badge bg-success">Approved</span>
+                                            
+                                            <div class="user-info-list">
+                                                <div class="info-item mb-2">
+                                                    <i class="bi bi-envelope text-muted me-2"></i>
+                                                    <span class="text-muted small text-truncate d-inline-block" style="max-width: 100%;"><?php echo htmlspecialchars($user['email']); ?></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <i class="bi bi-calendar-check text-success me-2"></i>
+                                                    <span class="text-muted small">
+                                                        Approved: <?php echo !empty($user['approved_at']) ? date('d M Y, H:i', strtotime($user['approved_at'])) : '-'; ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                                                <div class="status-indicator">
+                                                    <span class="status-dot dot-success"></span>
+                                                    <span class="small fw-semibold text-success uppercase">Active</span>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-soft-slate unapprove-btn" 
+                                                        data-id="<?php echo $user['id']; ?>" 
+                                                        data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                                    <i class="fas fa-undo me-1"></i> Batal Approved
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <?php if($approved_total_pages > 1): ?>
                         <nav aria-label="Approved users pagination" class="mt-3" id="approved-pagination">
@@ -835,7 +902,6 @@ if(isset($_GET['pending_page'])) {
                             </ul>
                         </nav>
                     <?php endif; ?>
-                    </div>
                 <?php endif; ?>
             </div>
 
@@ -843,59 +909,77 @@ if(isset($_GET['pending_page'])) {
             <div class="tab-pane fade <?php echo $activeTab === 'inactive' ? 'show active' : ''; ?>" id="inactive" role="tabpanel">
                 <?php if(empty($inactive_users)): ?>
                     <div class="empty-state">
-                        <i class="fas fa-user-check"></i>
+                        <i class="fas fa-user-slash"></i>
                         <p class="mt-3">No inactive users</p>
                         <p class="text-muted">All users are currently active!</p>
                     </div>
                 <?php else: ?>
-                    <div style="position: relative;">
-                        <div id="inactive-loading" class="users-loading-overlay" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                    <div style="position: relative; min-height: 200px;">
+                        <div class="d-flex justify-content-end mb-3">
+                            <div class="layout-switcher" data-target="inactive-cards-wrapper">
+                                <button type="button" class="btn-layout active" data-layout="grid" title="Grid View">
+                                    <i class="bi bi-grid-fill"></i> Grid
+                                </button>
+                                <button type="button" class="btn-layout" data-layout="list" title="List View">
+                                    <i class="bi bi-list-ul"></i> Row
+                                </button>
                             </div>
                         </div>
-                    <div id="inactive-cards-wrapper" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-                        <?php foreach($inactive_users_paged as $user): ?>
-                            <div class="col">
-                                <div class="approval-card card" style="border-left: 4px solid #6c757d;">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-start gap-3 mb-3">
-                                            <div class="flex-grow-1">
-                                                <h5 class="mb-1">
-                                                    <i class="fas fa-user-slash text-secondary me-2"></i><?php echo htmlspecialchars($user['username']); ?>
-                                                </h5>
-                                                <div class="text-muted small mb-2">
-                                                    <i class="fas fa-envelope me-1"></i> <?php echo htmlspecialchars($user['email']); ?>
+                        <div id="inactive-loading" class="users-loading-overlay">
+                            <div class="users-loading-content">
+                                <div class="spinner-border text-secondary" role="status"></div>
+                                <div class="fw-bold text-dark">Loading Inactive Users...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="inactive-cards-wrapper" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            <?php foreach($inactive_users_paged as $user): ?>
+                                <div class="col">
+                                    <div class="approval-card card-inactive">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="avatar-circle bg-light text-secondary me-3">
+                                                    <i class="fas fa-user-slash"></i>
                                                 </div>
-                                                <div class="text-muted small mb-2">
-                                                    <i class="fas fa-user-tag me-1"></i> Role: <span class="badge <?php echo $user['role'] === 'admin' ? 'bg-danger' : 'bg-info'; ?>"><?php echo ucfirst($user['role']); ?></span>
-                                                </div>
-                                                <div class="text-muted small">
-                                                    <i class="fas fa-calendar me-1"></i> Member Since: <?php echo date('d M Y', strtotime($user['created_at'])); ?>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <h5 class="mb-0 text-truncate fw-bold"><?php echo htmlspecialchars($user['username']); ?></h5>
+                                                    <span class="badge <?php echo $user['role'] === 'admin' ? 'bg-danger' : 'bg-info'; ?> small-badge">
+                                                        <?php echo ucfirst($user['role']); ?>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-sm btn-soft-slate edit-user flex-fill"
-                                                    data-id="<?php echo $user['id']; ?>"
-                                                    data-username="<?php echo htmlspecialchars($user['username']); ?>"
-                                                    data-email="<?php echo htmlspecialchars($user['email']); ?>"
-                                                    data-role="<?php echo $user['role']; ?>"
-                                                    data-status="<?php echo $user['is_aktif']; ?>">
-                                                <i class="fas fa-edit me-1"></i> Edit
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-soft-slate text-danger delete-user flex-fill"
-                                                    data-id="<?php echo $user['id']; ?>"
-                                                    data-username="<?php echo htmlspecialchars($user['username']); ?>">
-                                                <i class="fas fa-trash me-1"></i> Delete
-                                            </button>
+                                            
+                                            <div class="user-info-list mb-4">
+                                                <div class="info-item mb-2">
+                                                    <i class="bi bi-envelope text-muted me-2"></i>
+                                                    <span class="text-muted small text-truncate d-inline-block w-100"><?php echo htmlspecialchars($user['email']); ?></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <i class="bi bi-person-x text-muted me-2"></i>
+                                                    <span class="text-muted small">Status: <strong class="text-secondary">Nonaktif</strong></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2 pt-3 border-top">
+                                                <button type="button" class="btn btn-sm btn-light edit-user flex-fill"
+                                                        data-id="<?php echo $user['id']; ?>"
+                                                        data-username="<?php echo htmlspecialchars($user['username']); ?>"
+                                                        data-email="<?php echo htmlspecialchars($user['email']); ?>"
+                                                        data-role="<?php echo $user['role']; ?>"
+                                                        data-status="<?php echo $user['is_aktif']; ?>">
+                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-light text-danger delete-user flex-fill"
+                                                        data-id="<?php echo $user['id']; ?>"
+                                                        data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <?php endforeach; ?>
+                        </div>
                     <?php if($inactive_total_pages > 1): ?>
                         <nav aria-label="Inactive users pagination" class="mt-3" id="inactive-pagination">
                             <ul class="pagination justify-content-center mb-0">
@@ -1086,13 +1170,15 @@ if(isset($_GET['pending_page'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="importXlsxForm" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="alert alert-info">
-                            <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Excel Format</h6>
-                            <p class="mb-2">File Excel (.xlsx) harus memiliki kolom berikut pada row pertama:</p>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-bordered mb-2">
-                                    <thead class="table-primary">
+                    <div class="modal-body p-4">
+                        <!-- Instructions Card -->
+                        <div class="import-instruction-card mb-4">
+                            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle-fill text-primary me-2"></i>Persiapan Data Excel</h6>
+                            <p class="small text-muted mb-3">Pastikan file Excel (.xlsx) Anda mengikuti format kolom di bawah ini pada baris pertama:</p>
+                            
+                            <div class="table-responsive mb-3">
+                                <table class="table table-sm mapping-table-preview mb-0">
+                                    <thead>
                                         <tr>
                                             <th>username</th>
                                             <th>email</th>
@@ -1101,47 +1187,47 @@ if(isset($_GET['pending_page'])) {
                                             <th>status</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="text-muted small">
                                         <tr>
                                             <td>john_doe</td>
-                                            <td>john@example.com</td>
-                                            <td>Pass123</td>
+                                            <td>john@mail.com</td>
+                                            <td>******</td>
                                             <td>user</td>
-                                            <td>1</td>
-                                        </tr>
-                                        <tr>
-                                            <td>jane_admin</td>
-                                            <td>jane@example.com</td>
-                                            <td>Admin456</td>
-                                            <td>admin</td>
                                             <td>1</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <hr>
-                            <ul class="mb-0 small">
-                                <li><strong>username</strong>: Username (required)</li>
-                                <li><strong>email</strong>: Email address (required)</li>
-                                <li><strong>password</strong>: Password min. 6 characters (required)</li>
-                                <li><strong>role</strong>: user atau admin (required)</li>
-                                <li><strong>status</strong>: 1 = Active, 0 = Inactive (optional, default: 1)</li>
+
+                            <ul class="import-guidelines">
+                                <li><strong>Role</strong>: Isi dengan 'user' atau 'admin'.</li>
+                                <li><strong>Status</strong>: 1 (Aktif) atau 0 (Nonaktif).</li>
+                                <li><strong>Password</strong>: Minimal 6 karakter.</li>
                             </ul>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Select Excel File (.xlsx)</label>
-                            <input type="file" class="form-control" name="xlsx_file" id="xlsx_file" accept=".xlsx,.xls" required>
+
+                        <!-- File Upload Area -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-uppercase tracking-wider">Pilih File XLSX</label>
+                            <div class="import-file-area">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <span class="file-label">Klik untuk memilih file</span>
+                                <span class="file-hint">Mendukung format .xlsx atau .xls</span>
+                                <input type="file" class="form-control mt-3" name="xlsx_file" id="xlsx_file" accept=".xlsx,.xls" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <a href="?download_template=1" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-download me-1"></i> Download Excel Template
+
+                        <!-- Template Download -->
+                        <div class="d-grid shadow-sm rounded-12 overflow-hidden">
+                            <a href="?download_template=1" class="btn btn-light py-2 text-success border">
+                                <i class="bi bi-file-earmark-excel me-2"></i> Belum punya format? <strong>Download Template</strong>
                             </a>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-soft-green">
-                            <i class="bi bi-upload me-2"></i>Import
+                    <div class="modal-footer bg-light-subtle border-top-0 px-4 pb-4">
+                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-soft-green px-4">
+                            <i class="bi bi-upload me-2"></i>Mulai Import Data
                         </button>
                     </div>
                 </form>
