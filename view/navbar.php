@@ -14,6 +14,17 @@ $current_page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 ?>
 <!-- Ensure Bootstrap Icons available for menu items -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<!-- Dark Mode Stylesheet -->
+<link rel="stylesheet" href="../css/dark-mode.css">
+
+<!-- Dark Mode Script -->
+<script>
+    // Apply theme immediately to prevent flash
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+</script>
 
 <!-- Modern Page Transition Loader: Skeleton Alternative -->
 <div id="pageSkeletonOverlay">
@@ -152,7 +163,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 </li>
                 <?php endif; ?>
                 
-                <li class="nav-item dropdown ms-lg-3 mt-2 mt-lg-0 w-100 w-lg-auto">
+                <!-- Dark Mode Toggle Button (Standalone) -->
+                <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                    <button class="btn btn-light rounded-circle p-2 border-0 shadow-sm" 
+                            onclick="toggleDarkMode()" 
+                            title="Toggle Dark/Light Mode"
+                            id="themeToggleBtn"
+                            style="width: 42px; height: 42px;">
+                        <i class="bi bi-moon-stars fs-5" id="darkModeIcon"></i>
+                    </button>
+                </li>
+
+                <li class="nav-item dropdown ms-lg-2 mt-2 mt-lg-0 w-100 w-lg-auto">
                     <a class="nav-link dropdown-toggle bg-light rounded-pill px-3" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle fs-5 text-primary"></i>
                         <span class="fw-bold"><?php echo htmlspecialchars(ucwords($user['username'])); ?></span>
@@ -177,3 +199,43 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </nav>
+
+<script>
+    function toggleDarkMode() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        updateDarkModeUI(newTheme);
+    }
+
+    function updateDarkModeUI(theme) {
+        const icon = document.getElementById('darkModeIcon');
+        const btn = document.getElementById('themeToggleBtn');
+        
+        if (icon) {
+            if (theme === 'dark') {
+                icon.className = 'bi bi-sun-fill fs-5 text-warning';
+                if (btn) {
+                    btn.classList.remove('btn-light');
+                    btn.classList.add('btn-dark');
+                }
+            } else {
+                icon.className = 'bi bi-moon-stars fs-5';
+                if (btn) {
+                    btn.classList.remove('btn-dark');
+                    btn.classList.add('btn-light');
+                }
+            }
+        }
+    }
+
+    // Update UI on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        updateDarkModeUI(currentTheme);
+    });
+</script>

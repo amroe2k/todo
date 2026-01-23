@@ -233,3 +233,99 @@ body.auth-page {
     border-radius: 10px;
     padding: 10px;
 }
+
+/* ============================================
+   DARK MODE FOR AUTH PAGE
+   ============================================ */
+
+[data-theme="dark"] .auth-page {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .auth-bg {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme="dark"] .auth-shape-1 {
+    background: #1e3a8a;
+    opacity: 0.4;
+}
+
+[data-theme="dark"] .auth-shape-2 {
+    background: #065f46;
+    opacity: 0.3;
+}
+
+[data-theme="dark"] .split-wrapper {
+    background: rgba(30, 41, 59, 0.6);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .glass-panel {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .auth-title {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .auth-subtitle {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .form-label {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .input-glass-group .form-control {
+    background: rgba(51, 65, 85, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .input-glass-group .form-control::placeholder {
+    color: #64748b;
+}
+
+[data-theme="dark"] .input-glass-group .form-control:focus {
+    background: rgba(51, 65, 85, 1);
+    border-color: #60a5fa;
+}
+
+[data-theme="dark"] .input-glass-icon {
+    color: #64748b;
+}
+
+[data-theme="dark"] .password-toggle {
+    color: #64748b;
+}
+
+[data-theme="dark"] .password-toggle:hover {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .demo-hints {
+    background: rgba(51, 65, 85, 0.6);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .demo-hints .text-muted {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .overlay {
+    background: linear-gradient(135deg, #1e3a8a, #0891b2);
+}
+
+[data-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] a:not(.btn) {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] a:not(.btn):hover {
+    color: #93c5fd;
+}
