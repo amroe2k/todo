@@ -198,13 +198,13 @@ $colors = ['#fffacd', '#ffebcd', '#e0ffff', '#f0fff0', '#ffe4e1', '#f5f5f5', '#f
                 <p class="text-muted mb-0">Drag and drop notes to organize them</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary" id="viewArchivedBtn">
+                <button class="btn btn-outline-secondary btn-note-header" id="viewArchivedBtn">
                     <i class="fas fa-archive me-2"></i> Archived Notes
                     <?php if($archivedCount > 0): ?>
                     <span class="badge bg-secondary"><?php echo $archivedCount; ?></span>
                     <?php endif; ?>
                 </button>
-                <button class="btn" style="color: #12305b; background: linear-gradient(135deg, #eef4ff, #dbe7ff); border: 1px solid #c8d8ff;" data-bs-toggle="modal" data-bs-target="#addNoteModal">
+                <button class="btn btn-soft-blue btn-note-header" data-bs-toggle="modal" data-bs-target="#addNoteModal">
                     <i class="fas fa-plus-circle me-2"></i> Add New Note
                 </button>
             </div>
