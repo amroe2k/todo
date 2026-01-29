@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div id="change-password-loading" class="loading-overlay">
                         <div class="text-center">
                             <div class="spinner-border text-primary" role="status"></div>
-                            <div class="mt-3 fw-bold text-dark">Updating Security Settings...</div>
+                            <div class="mt-3 fw-bold text-primary">Updating Security Settings...</div>
                         </div>
                     </div>
 
