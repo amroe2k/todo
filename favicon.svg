@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="#0d6efd"/>
-  <text x="50" y="50" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central">T</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" aria-hidden="true">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3b7ee8" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#2f66c2" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#20357a" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <!-- flat linear gradient for a flatter surface (reduced highlight) -->
+  <rect width="100" height="100" rx="16" fill="url(#g1)"/>
+  <!-- subtle top highlight to make text pop -->
+  <ellipse cx="34" cy="26" rx="30" ry="12" fill="#ffffff" opacity="0.06" />
+  <text x="50" y="62" font-size="44" text-anchor="middle" fill="#ffffff" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="800">TD</text>
 </svg>

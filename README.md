@@ -19,6 +19,7 @@
 ## ✨ Features
 
 ### 🔐 Authentication System
+
 - **Unified Split-Panel Auth** - Modern sliding transition between Login and Register forms
 - **Glassmorphism Design** - Premium frosted-glass aesthetic with animated abstract backgrounds
 - **User Approval Workflow** - Admin-controlled registration approval system
@@ -26,12 +27,14 @@
 - **Show/Hide Password Toggle** - Intuitive icon-based password visibility control
 
 ### 📊 Dashboard
+
 - **Statistics Overview** - Quick glance at todos, notes, and completion rates
 - **Recent Activities** - Latest tasks and notes at your fingertips
 - **Quick Actions** - One-click access to create new items
 - **Personalized Greeting** - Welcome message with user context
 
 ### ✅ Task Management (Todos)
+
 - **Priority Levels** - High, Medium, Low with color-coded indicators
 - **Status Tracking** - Active, Completed, and Archived states
 - **Due Date Management** - Calendar-based scheduling with overdue alerts
@@ -40,6 +43,7 @@
 - **Search & Filter** - Find tasks quickly with advanced filtering
 
 ### 📝 Notes Management
+
 - **Sticky Note Interface** - Visual card-based note display
 - **Color Categories** - Organize notes with custom colors
 - **Archive System** - Keep important notes without clutter
@@ -47,6 +51,7 @@
 - **Rich Text Editor** - Full formatting support
 
 ### 👥 User Management (Admin)
+
 - **User Listing** - Comprehensive user directory with status indicators
 - **Approval System** - Pending, Approved, and Inactive user states
 - **Role Management** - Admin and User role assignments
@@ -54,6 +59,7 @@
 - **Batch Operations** - Approve, reject, or manage multiple users
 
 ### 🎨 Premium UI/UX
+
 - **Glassmorphism Theme** - Modern semi-transparent design throughout
 - **Dark Mode Support** - Toggle between light and dark themes with localStorage persistence
 - **Persistent Navbar** - Navigation remains visible during page transitions
@@ -66,12 +72,12 @@
 
 ## 📸 Screenshots
 
-| Login Page | Dashboard |
-|:---:|:---:|
+|           Login Page           |             Dashboard             |
+| :----------------------------: | :-------------------------------: |
 | Split-panel glassmorphism auth | Statistics and quick access cards |
 
-| Notes | Tasks |
-|:---:|:---:|
+|             Notes              |             Tasks              |
+| :----------------------------: | :----------------------------: |
 | Colorful sticky note interface | Priority-based task management |
 
 ---
@@ -79,6 +85,7 @@
 ## 🚀 Installation
 
 ### Prerequisites
+
 - PHP 8.0 or higher
 - MySQL 8.0 or higher
 - Apache/Nginx web server
@@ -87,34 +94,41 @@
 ### Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/amroe2k/todo.git
    cd todo
    ```
 
 2. **Install dependencies**
+
    ```bash
    composer install
    ```
 
 3. **Configure environment**
+
    ```bash
    cp .env_origin .env
    ```
+
    Edit `.env` with your database credentials:
+
    ```env
    DB_HOST=localhost
-   DB_NAME=todo_talenta
+   DB_NAME=db_todo
    DB_USER=your_username
    DB_PASS=your_password
    ```
 
 4. **Import database**
+
    ```bash
-   mysql -u your_username -p your_database < database/todo_talenta.sql
+   mysql -u your_username -p db_todo < database/db_todo.sql
    ```
 
 5. **Set permissions** (Linux/Mac)
+
    ```bash
    chmod -R 755 .
    chmod -R 777 ssl/
@@ -130,12 +144,14 @@
 ## 👤 Usage
 
 ### Demo Credentials
-| Role | Username | Password |
-|:---:|:---:|:---:|
-| Admin | `admin` | `password` |
-| User | `user` | `user123` |
+
+| Role  | Username |  Password  |
+| :---: | :------: | :--------: |
+| Admin | `admin`  | `password` |
+| User  |  `user`  | `user123`  |
 
 ### User Workflow
+
 1. **Register** - Create account via the Register panel
 2. **Wait for Approval** - Admin must approve new accounts
 3. **Login** - Access dashboard after approval
@@ -143,6 +159,7 @@
 5. **Organize Notes** - Add colorful notes for quick reference
 
 ### Admin Workflow
+
 1. **Review Pending Users** - Approve or reject registrations
 2. **Manage Users** - Activate, deactivate, or delete accounts
 3. **View As User** - Impersonate users for troubleshooting
@@ -153,29 +170,32 @@
 ## 🛠 Tech Stack
 
 ### Backend
-| Technology | Purpose |
-|:---|:---|
-| **PHP 8.0+** | Server-side logic and API |
-| **MySQL 8.0+** | Relational database |
-| **PDO** | Secure database abstraction |
+
+| Technology     | Purpose                     |
+| :------------- | :-------------------------- |
+| **PHP 8.0+**   | Server-side logic and API   |
+| **MySQL 8.0+** | Relational database         |
+| **PDO**        | Secure database abstraction |
 
 ### Frontend
-| Technology | Purpose |
-|:---|:---|
-| **Bootstrap 5.3** | Responsive CSS framework |
-| **Bootstrap Icons** | Consistent iconography |
-| **jQuery 3.6** | DOM manipulation and AJAX |
-| **SweetAlert2** | Beautiful alert dialogs |
-| **Custom CSS** | Glassmorphism styling |
+
+| Technology          | Purpose                   |
+| :------------------ | :------------------------ |
+| **Bootstrap 5.3**   | Responsive CSS framework  |
+| **Bootstrap Icons** | Consistent iconography    |
+| **jQuery 3.6**      | DOM manipulation and AJAX |
+| **SweetAlert2**     | Beautiful alert dialogs   |
+| **Custom CSS**      | Glassmorphism styling     |
 
 ### Security
-| Feature | Implementation |
-|:---|:---|
-| **Password Hashing** | `password_hash()` with bcrypt |
-| **SQL Injection Prevention** | PDO prepared statements |
-| **XSS Protection** | `htmlspecialchars()` sanitization |
-| **CSRF Protection** | Session-based validation |
-| **Honeypot Fields** | Anti-bot registration protection |
+
+| Feature                      | Implementation                    |
+| :--------------------------- | :-------------------------------- |
+| **Password Hashing**         | `password_hash()` with bcrypt     |
+| **SQL Injection Prevention** | PDO prepared statements           |
+| **XSS Protection**           | `htmlspecialchars()` sanitization |
+| **CSRF Protection**          | Session-based validation          |
+| **Honeypot Fields**          | Anti-bot registration protection  |
 
 ---
 
@@ -230,15 +250,18 @@ todo/
 ## 🔧 Configuration
 
 ### Environment Variables
-| Variable | Description | Default |
-|:---|:---|:---|
-| `DB_HOST` | Database host | `localhost` |
-| `DB_NAME` | Database name | `todo_talenta` |
-| `DB_USER` | Database username | - |
-| `DB_PASS` | Database password | - |
+
+| Variable  | Description       | Default        |
+| :-------- | :---------------- | :------------- |
+| `DB_HOST` | Database host     | `localhost`    |
+| `DB_NAME` | Database name     | `todo_talenta` |
+| `DB_USER` | Database username | -              |
+| `DB_PASS` | Database password | -              |
 
 ### Apache Configuration
+
 The `.htaccess` file includes:
+
 - URL rewriting for clean routes
 - Security headers
 - HTTPS enforcement (optional)
